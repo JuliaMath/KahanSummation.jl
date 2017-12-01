@@ -13,6 +13,16 @@ if VERSION >= v"0.7.0-DEV.3000" # TODO: More specific bound
     end
 end
 
+if isdefined(Base, Symbol("@default_eltype"))
+    using Base: @default_eltype
+else
+    macro default_eltype(itr)
+        quote
+            Core.Inference.return_type(first, Tuple{$(esc(itr))})
+        end
+    end
+end
+
 """
     cumsum_kbn(A, dim::Integer)
 
@@ -76,7 +86,7 @@ Return the sum of all elements of `A`, using the Kahan-Babuska-Neumaier compensa
 summation algorithm for additional accuracy.
 """
 function sum_kbn(A)
-    T = Base.@default_eltype(typeof(A))
+    T = @default_eltype(typeof(A))
     c = Base.promote_sys_size_add(zero(T)::T)
     i = start(A)
     if done(A, i)
