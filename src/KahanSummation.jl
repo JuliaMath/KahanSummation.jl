@@ -23,6 +23,12 @@ else
     end
 end
 
+if isdefined(Base, :promote_sys_size_add)
+    using Base: promote_sys_size_add
+else
+    promote_sys_size_add(x::T) where {T} = Base.r_promote(+, zero(T)::T)
+end
+
 """
     cumsum_kbn(A, dim::Integer)
 
@@ -87,7 +93,7 @@ summation algorithm for additional accuracy.
 """
 function sum_kbn(A)
     T = @default_eltype(typeof(A))
-    c = Base.promote_sys_size_add(zero(T)::T)
+    c = promote_sys_size_add(zero(T)::T)
     i = start(A)
     if done(A, i)
         return c

@@ -5,6 +5,9 @@ using KahanSummation
 using Compat
 using Compat.Test
 
+# Shadow the names in Base if they're defined
+import KahanSummation: sum_kbn, cumsum_kbn
+
 @testset "cumsum_kbn" begin
     v   = [1,1e100,1,-1e100]*1000
     v2  = [1,-1e100,1,1e100]*1000
