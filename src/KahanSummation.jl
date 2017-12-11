@@ -114,6 +114,26 @@ function sum_kbn(A)
     s - c
 end
 
-sum_kbn(f, A) = f.(A)
+function sum_kbn(f,A)
+    T = @default_eltype(typeof(A))
+    c = promote_sys_size_add(zero(T)::T)
+    i = start(A)
+    if done(A, i)
+        return c
+    end
+    Ai, i = next(A, i)
+    s = f(Ai) - c
+    while !(done(A, i))
+        Ai, i = next(A, i)
+        fAi = f(Ai); t = s + fAi
+        if abs(s) >= abs(fAi)
+            c -= ((s-t) + fAi)
+        else
+            c -= ((fAi-t) + s)
+        end
+        s = t
+    end
+    s - c
+end
 
 end # module
