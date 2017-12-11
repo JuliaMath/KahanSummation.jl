@@ -115,6 +115,7 @@ function sum_kbn(A)
 end
 
 function sum_kbn(f::Function, A)
+    f === identity && return sum_kbn(A)
     T = @default_eltype(typeof(A))
     c = promote_sys_size_add(zero(T)::T)
     i = start(A)
@@ -135,7 +136,5 @@ function sum_kbn(f::Function, A)
     end
     s - c
 end
-
-sum_kbn(identity, A) = sum_kbn(A)
 
 end # module
