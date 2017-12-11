@@ -114,7 +114,7 @@ function sum_kbn(A)
     s - c
 end
 
-function sum_kbn(f,A)
+function sum_kbn(f::Function, A)
     T = @default_eltype(typeof(A))
     c = promote_sys_size_add(zero(T)::T)
     i = start(A)
