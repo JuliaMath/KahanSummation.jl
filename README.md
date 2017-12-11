@@ -15,10 +15,12 @@ These functions were formerly part of Julia's Base library.
 julia> using KahanSummation
 
 julia> vec = [1.0, 1.0e16, -1.0e16, -0.5];
+
 julia> sum(vec), sum_kbn(vec)
 (-0.5, 0.5)
 
 julia> vec = [1.0, 1.0e16, 1.0, -1.0e16];
+
 julia> cumsum_kbn(vec) .- cumsum(vec)
 4-element Array{Float64,1}:
  0.0
