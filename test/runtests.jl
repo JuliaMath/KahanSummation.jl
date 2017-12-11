@@ -44,10 +44,7 @@ end
     @test sum_kbn([7 8 9]) === sum_kbn([8 9 7])
     @test sum_kbn(i for i=1:1:10) === sum_kbn(i for i=10:-1:1)
     @test sum_kbn([-0.0]) === -0.0
-    @test sum_kbn([-0.0,-0.0]) === -0.0
-end
 
-@testset "sum_kbn_fn" begin
     @test sum_kbn(x->x*x, [1.0]) == 1.0
     @test sum_kbn(x->x*x, [2.0]) == 4.0
     @test sum_kbn(x->x+1, Float64[]) == 0.0
