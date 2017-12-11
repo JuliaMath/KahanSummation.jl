@@ -46,3 +46,13 @@ end
     @test sum_kbn([-0.0]) === -0.0
     @test sum_kbn([-0.0,-0.0]) === -0.0
 end
+
+@testset "sum_kbn(f,A)" begin
+    @test sum_kbn(x->x*x, [1.0]) == 1.0
+    @test sum_kbn(x->x*x, [2.0]) == 4.0
+    @test sum_kbn(x->x+1, Float64[]) == 0.0
+    @test sum_kbn(sqrt, i for i=1.0:1.0:10.0) === 22.4682781862041
+    @test sum_kbn(x->x*im,[1+im 2+3im]) == -4+3im
+    @test sum_kbn(sqrt, [i for i in 1.0:1.0:10.0]) == sum_kbn(sqrt, [i for i in 10.0:-1.0:1.0])
+    @test sum_kbn([1.0, 1.0e16, 1.0, -1.0e16]) == sum_kbn(x->x+1, [1.0, 1.0e16, 1.0, -1.0e16] - 1.0)
+end
