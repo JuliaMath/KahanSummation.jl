@@ -14,14 +14,14 @@ These functions were formerly part of Julia's Base library.
 ```julia
 julia> using KahanSummation
 
-julia> vec = [1.0, 1.0e16, -1.0e16, -0.5];
+julia> avec = [1.0, 1.0e16, -1.0e16, -0.5];
 
-julia> sum(vec), sum_kbn(vec)
+julia> sum(avec), sum_kbn(avec)
 (-0.5, 0.5)
 
-julia> vec = [1.0, 1.0e16, 1.0, -1.0e16];
+julia> avec = [1.0, 1.0e16, 1.0, -1.0e16];
 
-julia> cumsum_kbn(vec) .- cumsum(vec)
+julia> cumsum_kbn(avec) .- cumsum(avec)
 4-element Array{Float64,1}:
  0.0
  0.0
