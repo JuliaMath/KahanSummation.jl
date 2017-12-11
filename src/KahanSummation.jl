@@ -136,6 +136,6 @@ function sum_kbn(f,A)
     s - c
 end
 
-sum_kbn(A) = sum_kbn(identity, A)
+sum_kbn(identity, A) = sum_kbn(A)
 
 end # module
