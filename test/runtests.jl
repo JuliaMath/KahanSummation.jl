@@ -47,7 +47,7 @@ end
     @test sum_kbn([-0.0,-0.0]) === -0.0
 end
 
-@testset "sum_kbn(f,A)" begin
+@testset "sum_kbn_fn" begin
     @test sum_kbn(x->x*x, [1.0]) == 1.0
     @test sum_kbn(x->x*x, [2.0]) == 4.0
     @test sum_kbn(x->x+1, Float64[]) == 0.0
