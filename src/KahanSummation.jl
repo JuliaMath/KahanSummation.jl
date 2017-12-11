@@ -86,10 +86,11 @@ function cumsum_kbn(v::AbstractVector{T}) where T<:AbstractFloat
 end
 
 """
-    sum_kbn(A)
+    sum_kbn([f,] A)
 
 Return the sum of all elements of `A`, using the Kahan-Babuska-Neumaier compensated
-summation algorithm for additional accuracy.
+summation algorithm for additional accuracy.  When a function `f` is supplied, the
+result of calling f on each element of `A` is summed.
 """
 function sum_kbn(A)
     T = @default_eltype(typeof(A))
@@ -112,5 +113,7 @@ function sum_kbn(A)
     end
     s - c
 end
+
+sum_kbn(f, A) = f.(A)
 
 end # module
