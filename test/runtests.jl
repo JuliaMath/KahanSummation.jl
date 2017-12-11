@@ -46,7 +46,16 @@ end
     @test sum_kbn([-0.0]) === -0.0
 
     @test sum_kbn(identity, [1,1e100,1,-1e100]) === 2.0
-    
+    @test sum_kbn(identity, Float64[]) === 0.0
+    @test sum_kbn(identity, i for i=1.0:1.0:10.0) === 55.0
+    @test sum_kbn(identity, i for i=1:1:10) === 55
+    @test sum_kbn(identity, [1 2 3]) === 6
+    @test sum_kbn(identity, [2+im 3-im]) === 5+0im
+    @test sum_kbn(identity, [1+im 2+3im]) === 3+4im
+    @test sum_kbn(identity, [7 8 9]) === sum_kbn([8 9 7])
+    @test sum_kbn(identity, i for i=1:1:10) === sum_kbn(i for i=10:-1:1)
+    @test sum_kbn(identity, [-0.0]) === -0.0
+   
     @test sum_kbn([-0.0]) === -0.0
     @test sum_kbn(x->x*x, [1.0]) === 1.0
     @test sum_kbn(x->x*x, [2.0]) === 4.0
