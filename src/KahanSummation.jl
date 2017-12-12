@@ -29,6 +29,59 @@ else
     promote_sys_size_add(x::T) where {T} = Base.r_promote(+, zero(T)::T)
 end
 
+
+import Base.TwicePrecision
+
+
+function plus_kbn(x::T, y::T) where {T}
+    hi = x + y
+    lo = abs(x) > abs(y) ? (x - hi) + y : (y - hi) + x
+    TwicePrecision(hi, lo)
+end
+function plus_kbn(x::T, y::TwicePrecision{T}) where {T}
+    hi = x + y.hi
+    if abs(x) > abs(y.hi)
+        lo = ((x - hi) + y.hi) + y.lo
+    else
+        lo = ((y.hi - hi) + x) + y.lo
+    end
+    TwicePrecision(hi, lo)
+end
+plus_kbn(x::TwicePrecision{T}, y::T) where {T} = plus_kbn(y, x)
+
+function plus_kbn(x::TwicePrecision{T}, y::TwicePrecision{T}) where {T}
+    hi = x.hi + y.hi
+    if abs(x.hi) > abs(y.hi)
+        lo = (((x.hi - hi) + y.hi) + y.lo) + x.lo
+    else
+        lo = (((y.hi - hi) + x.hi) + x.lo) + y.lo
+    end
+    TwicePrecision(hi, lo)
+end
+
+Base.r_promote_type(::typeof(plus_kbn), ::Type{T}) where {T<:AbstractFloat} =
+    TwicePrecision{T}
+
+Base.mr_empty(f, ::typeof(plus_kbn), T) = TwicePrecision{T}
+
+singleprec(x::TwicePrecision{T}) where {T} = convert(T, x)
+
+
+"""
+    sum_kbn([f,] A)
+
+Return the sum of all elements of `A`, using the Kahan-Babuska-Neumaier compensated
+summation algorithm for additional accuracy.
+"""
+sum_kbn(f, X) = singleprec(mapreduce(f, plus_kbn, X))
+sum_kbn(X) = sum_kbn(identity, X)
+
+
+
+
+
+
+
 """
     cumsum_kbn(A, dim::Integer)
 
@@ -83,34 +136,6 @@ function cumsum_kbn(v::AbstractVector{T}) where T<:AbstractFloat
         r[i] = s+c
     end
     return r
-end
-
-"""
-    sum_kbn(A)
-
-Return the sum of all elements of `A`, using the Kahan-Babuska-Neumaier compensated
-summation algorithm for additional accuracy.
-"""
-function sum_kbn(A)
-    T = @default_eltype(typeof(A))
-    c = promote_sys_size_add(zero(T)::T)
-    i = start(A)
-    if done(A, i)
-        return c
-    end
-    Ai, i = next(A, i)
-    s = Ai - c
-    while !(done(A, i))
-        Ai, i = next(A, i)
-        t = s + Ai
-        if abs(s) >= abs(Ai)
-            c -= ((s-t) + Ai)
-        else
-            c -= ((Ai-t) + s)
-        end
-        s = t
-    end
-    s - c
 end
 
 end # module
