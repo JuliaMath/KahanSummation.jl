@@ -65,13 +65,19 @@ function cumsum_kbn(A::AbstractArray{T}, axis::Integer) where T<:AbstractFloat
 end
 
 function cumsum_kbn(v::AbstractVector{T}) where T<:AbstractFloat
-    r = similar(v)
+    r = similar(v)ou can just use BenchmarkTools’ built-in setup argument which is always run before the code to be timed:
+
+@btime sort!(x) setup=(x = rand(100)) evals=1
+Note that evals=1 is important to ensure that the sort!(x) call is run exactly once after each setup call.
     isempty(v) && return r
     inds = indices(v, 1)
     i1 = first(inds)
     s = r[i1] = v[i1]
     c = zero(T)
-    for i = i1+1:last(inds)
+    for i = i1+1:last(inds)ou can just use BenchmarkTools’ built-in setup argument which is always run before the code to be timed:
+
+@btime sort!(x) setup=(x = rand(100)) evals=1
+Note that evals=1 is important to ensure that the sort!(x) call is run exactly once after each setup call.
         vi = v[i]
         t = s + vi
         if abs(s) >= abs(vi)
@@ -92,31 +98,8 @@ Return the sum of all elements of `A`, using the Kahan-Babuska-Neumaier compensa
 summation algorithm for additional accuracy.  When a function `f` is supplied, the
 result of calling f on each element of `A` is summed.
 """
-function sum_kbn(A)
-    T = @default_eltype(typeof(A))
-    c = promote_sys_size_add(zero(T)::T)
-    i = start(A)
-    if done(A, i)
-        return c
-    end
-    Ai, i = next(A, i)
-    s = Ai - c
-    while !(done(A, i))
-        Ai, i = next(A, i)
-        t = s + Ai
-        if abs(s) >= abs(Ai)
-            c -= ((s-t) + Ai)
-        else
-            c -= ((Ai-t) + s)
-        end
-        s = t
-    end
-    s - c
-end
-
 function sum_kbn(f::Function, A)
-    f === identity && return sum_kbn(A)
-    T = @default_eltype(typeof(A))
+    T = Base.return_types(f, (@default_eltype(typeof(A)),))[1]
     c = promote_sys_size_add(zero(T)::T)
     i = start(A)
     if done(A, i)
@@ -136,5 +119,7 @@ function sum_kbn(f::Function, A)
     end
     s - c
 end
+
+sum_kbn(A) = sum_kbn(identity, A)
 
 end # module
