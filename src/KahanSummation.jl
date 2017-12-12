@@ -29,42 +29,56 @@ else
     promote_sys_size_add(x::T) where {T} = Base.r_promote(+, zero(T)::T)
 end
 
+"""
+    TwicePrecisionN{T}
 
-import Base.TwicePrecision
+Represents an extended precision number as `x.hi - x.nlo`.
+
+We store the lower order component as the negation to avoid problems when `x.hi == -0.0`.
+"""
+struct TwicePrecisionN{T}
+    hi::T
+    nlo::T
+end
 
 
 function plus_kbn(x::T, y::T) where {T}
     hi = x + y
-    lo = abs(x) > abs(y) ? (x - hi) + y : (y - hi) + x
-    TwicePrecision(hi, lo)
+    nlo = abs(x) > abs(y) ? (hi - x ) - y : (hi - y) - x
+    TwicePrecisionN(hi, lo)
 end
-function plus_kbn(x::T, y::TwicePrecision{T}) where {T}
+function plus_kbn(x::T, y::TwicePrecisionN{T}) where {T}
     hi = x + y.hi
     if abs(x) > abs(y.hi)
-        lo = ((x - hi) + y.hi) + y.lo
+        nlo = ((hi - x) - y.hi) + y.nlo
     else
-        lo = ((y.hi - hi) + x) + y.lo
+        nlo = ((hi - y.hi) - x) + y.nlo
     end
-    TwicePrecision(hi, lo)
+    TwicePrecisionN(hi, nlo)
 end
-plus_kbn(x::TwicePrecision{T}, y::T) where {T} = plus_kbn(y, x)
+plus_kbn(x::TwicePrecisionN{T}, y::T) where {T} = plus_kbn(y, x)
 
-function plus_kbn(x::TwicePrecision{T}, y::TwicePrecision{T}) where {T}
+function plus_kbn(x::TwicePrecisionN{T}, y::TwicePrecisionN{T}) where {T}
     hi = x.hi + y.hi
     if abs(x.hi) > abs(y.hi)
-        lo = (((x.hi - hi) + y.hi) + y.lo) + x.lo
+        nlo = (((hi - x.hi) - y.hi) + y.nlo) + x.nlo
     else
-        lo = (((y.hi - hi) + x.hi) + x.lo) + y.lo
+        nlo = (((hi - y.hi) - x.hi) + x.nlo) + y.nlo
     end
-    TwicePrecision(hi, lo)
+    TwicePrecisionN(hi, nlo)
 end
 
-Base.r_promote_type(::typeof(plus_kbn), ::Type{T}) where {T<:AbstractFloat} =
-    TwicePrecision{T}
+Base.r_promote_type(::typeof(plus_kbn), ::Type{T}) where {T} =
+    TwicePrecisionN{T}
 
-Base.mr_empty(f, ::typeof(plus_kbn), T) = TwicePrecision{T}
+Base.convert(::Type{TwicePrecisionN{T}}, x::Number) where {T} =
+    TwicePrecisionN{T}(convert(T, x), zero(T))
+Base.convert(::Type{T}, x::TwicePrecisionN) where {T} =
+    convert(T, x.hi - x.nlo)
 
-singleprec(x::TwicePrecision{T}) where {T} = convert(T, x)
+Base.mr_empty(f, ::typeof(plus_kbn), T) = TwicePrecisionN(zero(T),zero(T))
+
+singleprec(x::TwicePrecisionN{T}) where {T} = convert(T, x)
 
 
 """
