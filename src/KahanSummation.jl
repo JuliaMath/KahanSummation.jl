@@ -45,7 +45,7 @@ end
 @inline function plus_kbn(x::T, y::T) where {T}
     hi = x + y
     nlo = abs(x) > abs(y) ? (hi - x ) - y : (hi - y) - x
-    TwicePrecisionN(hi, lo)
+    TwicePrecisionN(hi, nlo)
 end
 @inline function plus_kbn(x::T, y::TwicePrecisionN{T}) where {T}
     hi = x + y.hi
@@ -68,15 +68,20 @@ end
     TwicePrecisionN(hi, nlo)
 end
 
-Base.r_promote_type(::typeof(plus_kbn), ::Type{T}) where {T} =
-    TwicePrecisionN{T}
-
 Base.convert(::Type{TwicePrecisionN{T}}, x::Number) where {T} =
     TwicePrecisionN{T}(convert(T, x), zero(T))
 Base.convert(::Type{T}, x::TwicePrecisionN) where {T} =
     convert(T, x.hi - x.nlo)
 
-Base.mr_empty(f, ::typeof(plus_kbn), T) = TwicePrecisionN(zero(T),zero(T))
+@static if VERSION >= v"0.7.0-"
+    Base.mapreduce_empty(f, ::typeof(plus_kbn), T) = TwicePrecisionN(zero(T),zero(T))
+    Base.mapreduce_empty(::typeof(identity), ::typeof(plus_kbn), T) = TwicePrecisionN(zero(T),zero(T)) # disambiguate
+    Base.mapreduce_single(f, ::typeof(plus_kbn), x) = TwicePrecisionN(x, zero(x))
+else
+    Base.r_promote_type(::typeof(plus_kbn), ::Type{T}) where {T} =
+        TwicePrecisionN{T}
+    Base.mr_empty(f, ::typeof(plus_kbn), T) = TwicePrecisionN(zero(T),zero(T))
+end
 
 singleprec(x::TwicePrecisionN{T}) where {T} = convert(T, x)
 
