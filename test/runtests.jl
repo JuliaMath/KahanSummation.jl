@@ -31,6 +31,12 @@ import KahanSummation: sum_kbn, cumsum_kbn
     @test isequal(c[1,:], cv2)
     @test isequal(c[3,:], cv)
     @test isequal(c[:,4], [2.0,2.0,2.0,2.0]*1000)
+    
+    amat = reshape(collect(1.0:16.0),(4,4))
+  
+    @test cumsum_kbn(amat, 2)[3,:] == [3.0, 10.0, 21.0, 36.0]
+    @test diag(cumsum_kbn(amat, 1)) == [1.0, 11.0, 30.0, 58.0]
+
 end
 
 @testset "sum_kbn" begin
