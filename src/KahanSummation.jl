@@ -42,12 +42,12 @@ struct TwicePrecisionN{T}
 end
 
 
-function plus_kbn(x::T, y::T) where {T}
+@inline function plus_kbn(x::T, y::T) where {T}
     hi = x + y
     nlo = abs(x) > abs(y) ? (hi - x ) - y : (hi - y) - x
     TwicePrecisionN(hi, lo)
 end
-function plus_kbn(x::T, y::TwicePrecisionN{T}) where {T}
+@inline function plus_kbn(x::T, y::TwicePrecisionN{T}) where {T}
     hi = x + y.hi
     if abs(x) > abs(y.hi)
         nlo = ((hi - x) - y.hi) + y.nlo
@@ -56,9 +56,9 @@ function plus_kbn(x::T, y::TwicePrecisionN{T}) where {T}
     end
     TwicePrecisionN(hi, nlo)
 end
-plus_kbn(x::TwicePrecisionN{T}, y::T) where {T} = plus_kbn(y, x)
+@inline plus_kbn(x::TwicePrecisionN{T}, y::T) where {T} = plus_kbn(y, x)
 
-function plus_kbn(x::TwicePrecisionN{T}, y::TwicePrecisionN{T}) where {T}
+@inline function plus_kbn(x::TwicePrecisionN{T}, y::TwicePrecisionN{T}) where {T}
     hi = x.hi + y.hi
     if abs(x.hi) > abs(y.hi)
         nlo = (((hi - x.hi) - y.hi) + y.nlo) + x.nlo
