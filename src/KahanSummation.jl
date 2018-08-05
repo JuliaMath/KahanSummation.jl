@@ -1,7 +1,7 @@
 # This file contains code that was formerly a part of Julia.
 # License is MIT: https://julialang.org/license
 
-__precompile__(true)
+VERSION < v"0.7.0-beta2.199" && __precompile__()
 
 module KahanSummation
 
