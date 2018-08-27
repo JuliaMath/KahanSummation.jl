@@ -13,7 +13,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Home",
     "title": "KahanSummation.sum_kbn",
     "category": "function",
-    "text": "sum_kbn(A)\n\nReturn the sum of all elements of A, using the Kahan-Babuska-Neumaier compensated summation algorithm for additional accuracy.\n\n\n\n"
+    "text": "sum_kbn(A)\n\nReturn the sum of all elements of A, using the Kahan-Babuska-Neumaier compensated summation algorithm for additional accuracy.\n\n\n\n\n\n"
 },
 
 {
@@ -21,7 +21,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Home",
     "title": "KahanSummation.cumsum_kbn",
     "category": "function",
-    "text": "cumsum_kbn(A, dim::Integer)\n\nCumulative sum along a dimension, using the Kahan-Babuska-Neumaier compensated summation algorithm for additional accuracy.\n\n\n\n"
+    "text": "cumsum_kbn(A, dim::Integer)\n\nCumulative sum along a dimension, using the Kahan-Babuska-Neumaier compensated summation algorithm for additional accuracy.\n\n\n\n\n\n"
 },
 
 {
