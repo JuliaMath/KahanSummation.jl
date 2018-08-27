@@ -6,17 +6,15 @@ module KahanSummation
 export sum_kbn, cumsum_kbn
 
 """
-    cumsum_kbn(A, dim::Integer)
+    cumsum_kbn(A; dims::Integer)
 
 Cumulative sum along a dimension, using the Kahan-Babuska-Neumaier compensated summation
 algorithm for additional accuracy.
 """
-function cumsum_kbn(A::AbstractArray{T}, axis::Integer) where T<:AbstractFloat
-    dimsA = size(A)
-    ndimsA = ndims(A)
-    axis_size = dimsA[axis]
+function cumsum_kbn(A::AbstractArray{T}; dims::Integer) where T<:AbstractFloat
+    axis_size = size(A, dims)
     axis_stride = 1
-    for i = 1:(axis-1)
+    for i = 1:dims-1
         axis_stride *= size(A, i)
     end
     axis_size <= 1 && return A
@@ -86,5 +84,9 @@ function sum_kbn(A)
     end
     s - c
 end
+
+### Deprecations
+
+Base.@deprecate cumsum_kbn(A, axis) cumsum_kbn(A, dims=axis)
 
 end # module

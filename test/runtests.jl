@@ -16,7 +16,7 @@ using Test
 
     A = [v reverse(v) v2 reverse(v2)]
 
-    c = cumsum_kbn(A, 1)
+    c = cumsum_kbn(A, dims=1)
 
     @test isequal(c[:,1], cv)
     @test isequal(c[:,3], cv2)
