@@ -12,6 +12,7 @@ makedocs(
 )
 
 deploydocs(
+    julia = "0.6",
     repo = "github.com/JuliaMath/KahanSummation.jl.git",
     target = "build",
     deps = nothing,
