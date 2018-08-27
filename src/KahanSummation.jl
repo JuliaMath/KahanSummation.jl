@@ -1,33 +1,9 @@
 # This file contains code that was formerly a part of Julia.
 # License is MIT: https://julialang.org/license
 
-VERSION < v"0.7.0-beta2.199" && __precompile__()
-
 module KahanSummation
 
-if VERSION >= v"0.7.0-DEV.3000" # TODO: More specific bound
-    if isdefined(Base, :sum_kbn) # Deprecated
-        import Base: sum_kbn, cumsum_kbn
-    else
-        export sum_kbn, cumsum_kbn
-    end
-end
-
-if isdefined(Base, Symbol("@default_eltype"))
-    using Base: @default_eltype
-else
-    macro default_eltype(itr)
-        quote
-            Core.Inference.return_type(first, Tuple{$(esc(itr))})
-        end
-    end
-end
-
-if isdefined(Base, :promote_sys_size_add)
-    using Base: promote_sys_size_add
-else
-    promote_sys_size_add(x::T) where {T} = Base.r_promote(+, zero(T)::T)
-end
+export sum_kbn, cumsum_kbn
 
 """
     cumsum_kbn(A, dim::Integer)
@@ -67,7 +43,7 @@ end
 function cumsum_kbn(v::AbstractVector{T}) where T<:AbstractFloat
     r = similar(v)
     isempty(v) && return r
-    inds = indices(v, 1)
+    inds = axes(v, 1)
     i1 = first(inds)
     s = r[i1] = v[i1]
     c = zero(T)
@@ -92,16 +68,14 @@ Return the sum of all elements of `A`, using the Kahan-Babuska-Neumaier compensa
 summation algorithm for additional accuracy.
 """
 function sum_kbn(A)
-    T = @default_eltype(typeof(A))
-    c = promote_sys_size_add(zero(T)::T)
-    i = start(A)
-    if done(A, i)
-        return c
-    end
-    Ai, i = next(A, i)
+    T = Base.@default_eltype(A)
+    c = Base.reduce_empty(+, T)
+    it = iterate(A)
+    it === nothing && return c
+    Ai, i = it
     s = Ai - c
-    while !(done(A, i))
-        Ai, i = next(A, i)
+    while (it = iterate(A, i)) !== nothing
+        Ai, i = it
         t = s + Ai
         if abs(s) >= abs(Ai)
             c -= ((s-t) + Ai)
