@@ -73,7 +73,7 @@ function sum_kbn(A)
     Ai, i = it
     s = Ai - c
     while (it = iterate(A, i)) !== nothing
-        Ai, i = it
+        Ai, i = it::Tuple{T, Int}
         t = s + Ai
         if abs(s) >= abs(Ai)
             c -= ((s-t) + Ai)
