@@ -16,17 +16,21 @@ using Test
 
     A = [v reverse(v) v2 reverse(v2)]
 
-    c = cumsum_kbn(A, dims=1)
+    c = cumsum_kbn(A; dims=1)
 
     @test isequal(c[:,1], cv)
     @test isequal(c[:,3], cv2)
     @test isequal(c[4,:], [2.0, 2.0, 2.0, 2.0]*1000)
 
-    c = cumsum_kbn(A, 2)
+    c = cumsum_kbn(A; dims=2)
 
     @test isequal(c[1,:], cv2)
     @test isequal(c[3,:], cv)
     @test isequal(c[:,4], [2.0,2.0,2.0,2.0]*1000)
+    
+    @test isequal(cumsum_kbn(1:3), [1,3,6])
+    @test isequal(cumsum_kbn((i for i in [1,2,3])), [1,3,6])
+    
 end
 
 @testset "sum_kbn" begin
@@ -41,4 +45,7 @@ end
     @test sum_kbn(i for i=1:1:10) === sum_kbn(i for i=10:-1:1)
     @test sum_kbn([-0.0]) === -0.0
     @test sum_kbn([-0.0,-0.0]) === -0.0
+
+    @test isequal(sum_kbn(1:3), 6)
+    @test isequal(sum_kbn((i for i in [1,2,3])), 6)
 end

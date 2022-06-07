@@ -11,7 +11,7 @@ export sum_kbn, cumsum_kbn
 Cumulative sum along a dimension, using the Kahan-Babuska-Neumaier compensated summation
 algorithm for additional accuracy.
 """
-function cumsum_kbn(A::AbstractArray{T}; dims::Integer) where T<:AbstractFloat
+function cumsum_kbn(A::Union{AbstractArray{Typ}, NTuple{N,Typ}}; dims::Integer) where {N, Typ<:Number}
     axis_size = size(A, dims)
     axis_stride = 1
     for i = 1:dims-1
@@ -23,7 +23,7 @@ function cumsum_kbn(A::AbstractArray{T}; dims::Integer) where T<:AbstractFloat
     for i = 1:length(A)
         if div(i-1, axis_stride) % axis_size == 0
             B[i] = A[i]
-            C[i] = zero(T)
+            C[i] = zero(Typ)
         else
             s = B[i-axis_stride]
             Ai = A[i]
@@ -38,13 +38,15 @@ function cumsum_kbn(A::AbstractArray{T}; dims::Integer) where T<:AbstractFloat
     return B + C
 end
 
-function cumsum_kbn(v::AbstractVector{T}) where T<:AbstractFloat
+cumsum_kbn(v::Union{StepRange, Base.Generator}) = cumsum_kbn(collect(v))
+    
+function cumsum_kbn(v::Union{AbstractArray{Typ}, NTuple{N,Typ}}) where {N, Typ<:Number}
     r = similar(v)
     isempty(v) && return r
     inds = axes(v, 1)
     i1 = first(inds)
     s = r[i1] = v[i1]
-    c = zero(T)
+    c = zero(Typ)
     for i = i1+1:last(inds)
         vi = v[i]
         t = s + vi
@@ -65,15 +67,15 @@ end
 Return the sum of all elements of `A`, using the Kahan-Babuska-Neumaier compensated
 summation algorithm for additional accuracy.
 """
-function sum_kbn(A)
+function sum_kbn(A::Union{AbstractArray{Typ}, NTuple{N,Typ}}) where {N, Typ<:Number}
     T = Base.@default_eltype(A)
-    c = Base.reduce_empty(+, T)
+    c = Base.reduce_empty(+, Typ)
     it = iterate(A)
     it === nothing && return c
     Ai, i = it
     s = Ai - c
     while (it = iterate(A, i)) !== nothing
-        Ai, i = it::Tuple{T, Int}
+        Ai, i = it::Tuple{Typ, Int}
         t = s + Ai
         if abs(s) >= abs(Ai)
             c -= ((s-t) + Ai)
@@ -84,6 +86,8 @@ function sum_kbn(A)
     end
     s - c
 end
+
+sum_kbn(v::Union{StepRange, Base.Generator}) = sum_kbn(collect(v))
 
 ### Deprecations
 
