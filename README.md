@@ -8,7 +8,9 @@ This package provides variants of `sum` and `cumsum`, called `sum_kbn` and `cums
 respectively, using the Kahan-Babuska-Neumaier (KBN) algorithm for additional precision.
 These functions are typically slower and less memory efficient than `sum` and `cumsum`.
 
-These functions were formerly part of Julia's Base library.
+These functions were formerly part of Julia's Base library. This package works and is supported.
+
+----
 
 ## Examples
 ```julia
