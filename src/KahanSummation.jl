@@ -89,6 +89,15 @@ end
 
 sum_kbn(v::Union{StepRange, Base.Generator}) = sum_kbn(collect(v))
 
+function sum_kbn_online(xs)
+   accum = zero(eltype(xs))
+   for x in xs # assuming this accesses the xs lazily
+       accum = sum_kbn(accum, x)
+   end
+   accum
+end
+
+
 ### Deprecations
 
 Base.@deprecate cumsum_kbn(A, axis) cumsum_kbn(A, dims=axis)
