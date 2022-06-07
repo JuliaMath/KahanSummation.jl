@@ -38,7 +38,7 @@ function cumsum_kbn(A::Union{AbstractArray{Typ}, NTuple{N,Typ}}; dims::Integer) 
     return B + C
 end
 
-cumsum_kbn(v::StepRange) = cumsum_kbn(collect(v))
+cumsum_kbn(v) = cumsum_kbn(collect(v))
     
 function cumsum_kbn(v::Union{AbstractArray{Typ}, NTuple{N,Typ}}) where {N, Typ<:Number}
     r = similar(v)
@@ -87,7 +87,7 @@ function sum_kbn(A::Union{AbstractArray{Typ}, NTuple{N,Typ}}) where {N, Typ<:Num
     s - c
 end
 
-sum_kbn(v::StepRange) = sum_kbn(collect(v))
+sum_kbn(v) = sum_kbn(collect(v))
 
 ### Deprecations
 
