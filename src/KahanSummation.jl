@@ -87,7 +87,7 @@ function sum_kbn(A::Union{AbstractArray{Typ}, NTuple{N,Typ}}) where {N, Typ<:Num
     s - c
 end
 
-sum_kbn(v::Union{StepRange, Base.Generator}) = cumsum_kbn(collect(v))
+sum_kbn(v::Union{StepRange, Base.Generator}) = sum_kbn(collect(v))
 
 ### Deprecations
 
