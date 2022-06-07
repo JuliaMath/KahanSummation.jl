@@ -11,7 +11,7 @@ export sum_kbn, cumsum_kbn
 Cumulative sum along a dimension, using the Kahan-Babuska-Neumaier compensated summation
 algorithm for additional accuracy.
 """
-function cumsum_kbn(A::Union{AbstractVector{Typ}, NTuple{N,Typ}}; dims::Integer) where {N, Typ<:Number}
+function cumsum_kbn(A::Union{AbstractArray{Typ}, NTuple{N,Typ}}; dims::Integer) where {N, Typ<:Number}
     axis_size = size(A, dims)
     axis_stride = 1
     for i = 1:dims-1
@@ -40,7 +40,7 @@ end
 
 cumsum_kbn(v::StepRange) = cumsum_kbn(collect(v))
     
-function cumsum_kbn(v::Union{AbstractVector{Typ}, NTuple{N,Typ}}) where {N, Typ<:Number}
+function cumsum_kbn(v::Union{AbstractArray{Typ}, NTuple{N,Typ}}) where {N, Typ<:Number}
     r = similar(v)
     isempty(v) && return r
     inds = axes(v, 1)
@@ -67,7 +67,7 @@ end
 Return the sum of all elements of `A`, using the Kahan-Babuska-Neumaier compensated
 summation algorithm for additional accuracy.
 """
-function sum_kbn(A::Union{AbstractVector{Typ}, NTuple{N,Typ}}) where {N, Typ<:Number}
+function sum_kbn(A::Union{AbstractArray{Typ}, NTuple{N,Typ}}) where {N, Typ<:Number}
     T = Base.@default_eltype(A)
     c = Base.reduce_empty(+, Typ)
     it = iterate(A)
