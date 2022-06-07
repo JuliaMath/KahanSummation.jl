@@ -11,7 +11,7 @@ export sum_kbn, cumsum_kbn
 Cumulative sum along a dimension, using the Kahan-Babuska-Neumaier compensated summation
 algorithm for additional accuracy.
 """
-function cumsum_kbn(A::AbstractArray{T}; dims::Integer) where T<:AbstractFloat
+function cumsum_kbn(A::AbstractArray{T}; dims::Integer) where {T<:Number}
     axis_size = size(A, dims)
     axis_stride = 1
     for i = 1:dims-1
@@ -38,7 +38,7 @@ function cumsum_kbn(A::AbstractArray{T}; dims::Integer) where T<:AbstractFloat
     return B + C
 end
 
-function cumsum_kbn(v::AbstractVector{T}) where T<:AbstractFloat
+function cumsum_kbn(v::AbstractVector{T}) where {T<:Number}
     r = similar(v)
     isempty(v) && return r
     inds = axes(v, 1)
@@ -65,7 +65,7 @@ end
 Return the sum of all elements of `A`, using the Kahan-Babuska-Neumaier compensated
 summation algorithm for additional accuracy.
 """
-function sum_kbn(A)
+function sum_kbn(A::AbstractArray{T}) where {T<:Number}
     T = Base.@default_eltype(A)
     c = Base.reduce_empty(+, T)
     it = iterate(A)
