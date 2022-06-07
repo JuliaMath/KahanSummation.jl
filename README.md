@@ -30,3 +30,5 @@ julia> cumsum_kbn(vec) .- cumsum(vec)
  2.0
  1.0
 ```
+
+see [the tests](https://github.com/JuliaMath/KahanSummation.jl/blob/master/test/runtests.jl) for more examples.
