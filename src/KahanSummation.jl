@@ -6,12 +6,17 @@ module KahanSummation
 export sum_kbn, cumsum_kbn
 
 """
-    cumsum_kbn(A; dims::Integer)
+    cumsum_kbn(A; dims=:)
 
-Cumulative sum along a dimension, using the Kahan-Babuska-Neumaier compensated summation
-algorithm for additional accuracy.
+Cumulative sum, optionally along a dimension, using the Kahan-Babuska-Neumaier compensated
+summation algorithm for additional accuracy.
 """
-function cumsum_kbn(A::Union{AbstractArray{Typ}, NTuple{N,Typ}}; dims::Integer) where {N, Typ<:Number}
+function cumsum_kbn end
+
+cumsum_kbn(x::AbstractArray; dims=:) = _cumsum_kbn(x, dims)
+cumsum_kbn(x; dims=:) = _cumsum_kbn(collect(x), dims)
+
+function _cumsum_kbn(A::AbstractArray{T}, dims::Integer) where {T}
     axis_size = size(A, dims)
     axis_stride = 1
     for i = 1:dims-1
@@ -23,7 +28,7 @@ function cumsum_kbn(A::Union{AbstractArray{Typ}, NTuple{N,Typ}}; dims::Integer) 
     for i = 1:length(A)
         if div(i-1, axis_stride) % axis_size == 0
             B[i] = A[i]
-            C[i] = zero(Typ)
+            C[i] = zero(T)
         else
             s = B[i-axis_stride]
             Ai = A[i]
@@ -38,15 +43,13 @@ function cumsum_kbn(A::Union{AbstractArray{Typ}, NTuple{N,Typ}}; dims::Integer) 
     return B + C
 end
 
-cumsum_kbn(v::Union{StepRange, Base.Generator}) = cumsum_kbn(collect(v))
-    
-function cumsum_kbn(v::Union{AbstractArray{Typ}, NTuple{N,Typ}}) where {N, Typ<:Number}
+function _cumsum_kbn(v::AbstractArray{T}, ::Colon) where {T}
     r = similar(v)
     isempty(v) && return r
     inds = axes(v, 1)
     i1 = first(inds)
     s = r[i1] = v[i1]
-    c = zero(Typ)
+    c = zero(T)
     for i = i1+1:last(inds)
         vi = v[i]
         t = s + vi
@@ -67,15 +70,15 @@ end
 Return the sum of all elements of `A`, using the Kahan-Babuska-Neumaier compensated
 summation algorithm for additional accuracy.
 """
-function sum_kbn(A::Union{AbstractArray{Typ}, NTuple{N,Typ}}) where {N, Typ<:Number}
+function sum_kbn(A)
     T = Base.@default_eltype(A)
-    c = Base.reduce_empty(+, Typ)
+    c = Base.reduce_empty(+, T)
     it = iterate(A)
     it === nothing && return c
     Ai, i = it
     s = Ai - c
     while (it = iterate(A, i)) !== nothing
-        Ai, i = it::Tuple{Typ, Int}
+        Ai, i = it::Tuple{T, Int}
         t = s + Ai
         if abs(s) >= abs(Ai)
             c -= ((s-t) + Ai)
@@ -87,10 +90,8 @@ function sum_kbn(A::Union{AbstractArray{Typ}, NTuple{N,Typ}}) where {N, Typ<:Num
     s - c
 end
 
-sum_kbn(v::Union{StepRange, Base.Generator}) = sum_kbn(collect(v))
-
 ### Deprecations
 
-Base.@deprecate cumsum_kbn(A, axis) cumsum_kbn(A, dims=axis)
+Base.@deprecate cumsum_kbn(A, axis) cumsum_kbn(A; dims=axis)
 
 end # module

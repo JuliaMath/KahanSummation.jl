@@ -45,7 +45,7 @@ end
     @test sum_kbn(i for i=1:1:10) === sum_kbn(i for i=10:-1:1)
     @test sum_kbn([-0.0]) === -0.0
     @test sum_kbn([-0.0,-0.0]) === -0.0
-
+    @test sum_kbn(Iterators.filter(isodd, 1:10)) == 25
     @test isequal(sum_kbn(1:3), 6)
     @test isequal(sum_kbn((i for i in [1,2,3])), 6)
 end
