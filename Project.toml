@@ -1,6 +1,6 @@
 name = "KahanSummation"
 uuid = "8e2b3108-d4c1-50be-a7a2-16352aec75c3"
-version = "0.3.0"
+version = "0.3.1"
 
 [compat]
 julia = "1.0"
