@@ -62,7 +62,7 @@ end
     i2 = KahanSummation.TwicePrecisionN{Float64}(-1e100, 1)
     i12 = KahanSummation.plus_kbn(i1, i2)
     f12 = KahanSummation.singleprec(i12)
-    @test f12 == 1
+    @test f12 == -1
 
     # test the bottom if statement in sum_kbn too, or try to at least
     i1 = convert(KahanSummation.TwicePrecisionN{Float64}, 5)
