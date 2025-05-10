@@ -130,7 +130,7 @@ Base.mapreduce_first(f, ::typeof(plus_kbn), x) = TwicePrecisionN(x, zero(x))
 Return the sum of all elements of `A`, using the Kahan-Babuska-Neumaier compensated
 summation algorithm for additional accuracy.
 """
-sum_kbn(f, X; kw..) = singleprec(mapreduce(f, plus_kbn, X; kw...))
+sum_kbn(f, X; kw...) = singleprec(mapreduce(f, plus_kbn, X; kw...))
 sum_kbn(X; kw...) = sum_kbn(identity, X; kw...)
 
 
