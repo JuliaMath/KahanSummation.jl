@@ -48,6 +48,9 @@ end
     @test sum_kbn(Iterators.filter(isodd, 1:10)) == 25
     @test isequal(sum_kbn(1:3), 6)
     @test isequal(sum_kbn((i for i in [1,2,3])), 6)
+    # also test `sum_kbn(f, x)`
+    @test sum_kbn(x -> x + 1, [7 8 9]) == sum_kbn([7 8 9] .+ 1)
+    @test sum_kbn(x -> x + 1, Float64[]) == zero(Float64)
 end
 
 @testset "twice-precision addition"
@@ -60,4 +63,8 @@ end
     i12 = KahanSummation.plus_kbn(i1, i2)
     f12 = KahanSummation.singleprec(i12)
     @test f12 == 1
+
+    i1 = convert(KahanSummation.TwicePrecisionN{Float64}, 5)
+    i2 = convert(KahanSummation.TwicePrecisionN{Float64}, 3)
+    @test KahanSummation.singleprec(KahanSummation.plus_kbn(i1, i2)) == 5.0 + 3.0
 end
