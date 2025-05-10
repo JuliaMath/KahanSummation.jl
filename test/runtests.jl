@@ -53,7 +53,7 @@ end
     @test sum_kbn(x -> x + 1, Float64[]) == zero(Float64)
 end
 
-@testset "twice-precision addition"
+@testset "twice-precision addition" begin
     # Note: the functions and types used here are internal
 
     # The intent of this test is to make sure that the two-sum
@@ -64,7 +64,9 @@ end
     f12 = KahanSummation.singleprec(i12)
     @test f12 == 1
 
+    # test the bottom if statement in sum_kbn too, or try to at least
     i1 = convert(KahanSummation.TwicePrecisionN{Float64}, 5)
     i2 = convert(KahanSummation.TwicePrecisionN{Float64}, 3)
     @test KahanSummation.singleprec(KahanSummation.plus_kbn(i1, i2)) == 5.0 + 3.0
+    @test KahanSummation.singleprec(KahanSummation.plus_kbn(i2, i1)) == 5.0 + 3.0
 end
