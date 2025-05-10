@@ -49,3 +49,15 @@ end
     @test isequal(sum_kbn(1:3), 6)
     @test isequal(sum_kbn((i for i in [1,2,3])), 6)
 end
+
+@testset "twice-precision addition"
+    # Note: the functions and types used here are internal
+
+    # The intent of this test is to make sure that the two-sum
+    # works on two twiceprecision numbers correctly, nothing else.
+    i1 = convert(KahanSummation.TwicePrecisionN{Float64}, 1e100)
+    i2 = KahanSummation.TwicePrecisionN{Float64}(-1e100, 1)
+    i12 = KahanSummation.plus_kbn(i1, i2)
+    f12 = KahanSummation.singleprec(i12)
+    @test f12 == 1
+end
