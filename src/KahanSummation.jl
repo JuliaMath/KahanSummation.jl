@@ -13,6 +13,12 @@ summation algorithm for additional accuracy.
 """
 function cumsum_kbn end
 
+# Note that the implementation for cumsum_kbn will stay as is,
+# since the use of a temporary variable for accumulation in `accumulate!`
+# is an implementation detail and not guaranteed!
+
+# sum is implemented using reducing functions but cumsum cannot be.
+
 cumsum_kbn(x::AbstractArray; dims=:) = _cumsum_kbn(x, dims)
 cumsum_kbn(x; dims=:) = _cumsum_kbn(collect(x), dims)
 
