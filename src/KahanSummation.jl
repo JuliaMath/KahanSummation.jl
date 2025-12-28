@@ -13,6 +13,12 @@ summation algorithm for additional accuracy.
 """
 function cumsum_kbn end
 
+# Note that the implementation for cumsum_kbn will stay as is,
+# since the use of a temporary variable for accumulation in `accumulate!`
+# is an implementation detail and not guaranteed!
+
+# sum is implemented using reducing functions but cumsum cannot be.
+
 cumsum_kbn(x::AbstractArray; dims=:) = _cumsum_kbn(x, dims)
 cumsum_kbn(x; dims=:) = _cumsum_kbn(collect(x), dims)
 
@@ -65,30 +71,74 @@ function _cumsum_kbn(v::AbstractArray{T}, ::Colon) where {T}
 end
 
 """
-    sum_kbn(A)
+    TwicePrecisionN{T}(number)
+    TwicePrecisionN{T}(hi, nlo)
+
+Represents an extended precision number as `x.hi - x.nlo`.
+We store the lower order component as the negation to avoid problems when `x.hi == -0.0`.
+
+This does not subtype Number or Real, being meant primarily for internal use
+in KahanSummation.jl.
+
+Convert a `TwicePrecisionN{T}` back to a `T` by calling `singleprec(tp)`.
+"""
+struct TwicePrecisionN{T}
+    hi::T
+    nlo::T
+end
+
+singleprec(x::TwicePrecisionN{T}) where {T} = convert(T, x)
+
+# Implement Base methods
+Base.convert(::Type{TwicePrecisionN{T}}, x::Number) where {T} =
+    TwicePrecisionN{T}(convert(T, x), zero(T))
+Base.convert(::Type{T}, x::TwicePrecisionN) where {T} =
+    convert(T, x.hi - x.nlo)
+
+# Two-sum implementation
+@inline function plus_kbn(x::T, y::T) where {T}
+    hi = x + y
+    nlo = abs(x) > abs(y) ? (hi - x ) - y : (hi - y) - x
+    TwicePrecisionN(hi, nlo)
+end
+@inline function plus_kbn(x::T, y::TwicePrecisionN{T}) where {T}
+    hi = x + y.hi
+    if abs(x) > abs(y.hi)
+        nlo = ((hi - x) - y.hi) + y.nlo
+    else
+        nlo = ((hi - y.hi) - x) + y.nlo
+    end
+    TwicePrecisionN(hi, nlo)
+end
+@inline plus_kbn(x::TwicePrecisionN{T}, y::T) where {T} = plus_kbn(y, x)
+
+@inline function plus_kbn(x::TwicePrecisionN{T}, y::TwicePrecisionN{T}) where {T}
+    hi = x.hi + y.hi
+    if abs(x.hi) > abs(y.hi)
+        nlo = (((hi - x.hi) - y.hi) + y.nlo) + x.nlo
+    else
+        nlo = (((hi - y.hi) - x.hi) + x.nlo) + y.nlo
+    end
+    TwicePrecisionN(hi, nlo)
+end
+
+# Implement methods for accumulators, specifically mapreduce
+Base.mapreduce_empty(f, ::typeof(plus_kbn), T) = TwicePrecisionN(zero(T),zero(T))
+Base.mapreduce_empty(::typeof(identity), ::typeof(plus_kbn), T) = TwicePrecisionN(zero(T),zero(T)) # disambiguate
+Base.mapreduce_first(f, ::typeof(plus_kbn), x) = TwicePrecisionN(x, zero(x))
+
+# Finally, the implementation of `sum_kbn` is trivial, dispatching to `mapreduce`.  
+# Most of the work happens in `plus_kbn`.
+
+"""
+    sum_kbn([f,] A)
 
 Return the sum of all elements of `A`, using the Kahan-Babuska-Neumaier compensated
 summation algorithm for additional accuracy.
 """
-function sum_kbn(A)
-    T = Base.@default_eltype(A)
-    c = Base.reduce_empty(+, T)
-    it = iterate(A)
-    it === nothing && return c
-    Ai, i = it
-    s = Ai - c
-    while (it = iterate(A, i)) !== nothing
-        Ai, i = it::Tuple{T, Int}
-        t = s + Ai
-        if abs(s) >= abs(Ai)
-            c -= ((s-t) + Ai)
-        else
-            c -= ((Ai-t) + s)
-        end
-        s = t
-    end
-    s - c
-end
+sum_kbn(f, X; kw...) = singleprec(mapreduce(f, plus_kbn, X; kw...))
+sum_kbn(X; kw...) = sum_kbn(identity, X; kw...)
+
 
 ### Deprecations
 
